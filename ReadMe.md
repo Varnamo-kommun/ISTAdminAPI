@@ -34,7 +34,7 @@ In light of DNP (Digitala nationella prov) we saw the potential of the EduCloud 
 ## Getting Started
 
 First, I'm glad you're here. Hopefully you will find this module to some use for your organisation.
-There are a few steps you will need to complete before you can use this module. 
+There are a few steps you will need to complete before you can use this module.
 Please make sure you've followed each one.
 
 ### Prerequisites
@@ -43,7 +43,7 @@ Please make sure you've followed each one.
 * API key to EduCloud to get access to the API.
 
 ### Installation
- 
+
 1. Clone the repo
 ```sh
 git clone https://github.com/th3d00rw4y/ISTAdminAPI.git
@@ -56,7 +56,9 @@ You will be prompted to enter the password for the service account.
 Note that the credential file will only be useable by the account thats creates it, and on the very same machine.
 
 4. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
+
 A popup window will appear asking you to select a folder to store your settings. The settings will be stored in .CSV format.
+
 Another popup window will appear asking you to locate your credential file. This will be the file that you previously created with the `New-Secret` Cmdlet.
 
 5. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
