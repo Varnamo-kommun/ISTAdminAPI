@@ -56,9 +56,7 @@ You will be prompted to enter the password for the service account.
 Note that the credential file will only be useable by the account thats creates it, and on the very same machine.
 
 4. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
-
 A popup window will appear asking you to select a folder to store your settings. The settings will be stored in .CSV format.
-
 Another popup window will appear asking you to locate your credential file. This will be the file that you previously created with the `New-Secret` Cmdlet.
 
 5. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
@@ -75,7 +73,7 @@ Another popup window will appear asking you to locate your credential file. This
           - [x] This cmdlet is used to retrieve users/persons from the EduCloud API. See the cmdlet help section for further help and examples.
           - [x] Parameters: `[string]`NameContains, , `[string]`CivicNo, `[string]`Id, `[string]`RelationshipEntity, `[string]`RelationshipOrganisation, `[string]`LookUp, `[string]`LookUpType, `[string]`ExpandProperties, `[string]`APIReady
       - [x] `Get-ISTDuty`
-          - [x] Retrieves duties connected to an organisation.
+          - [x] Retrieve duties connected to an organisation.
           - [x] Parameters: `[string]`Organisation, `[string]`DutyRole, `[string]`APIReady
       - [x] `Get-ISTOrganisation`
           - [x] Retrieve your organisations
