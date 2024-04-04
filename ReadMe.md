@@ -71,10 +71,10 @@ Another popup window will appear asking you to locate your credential file. This
   - [x] Available but not finished public cmdlets:
       - [x] `Get-ISTPerson`
           - [x] This cmdlet is used to retrieve users/persons from the EduCloud API. See the cmdlet help section for further help and examples.
-          - [x] Parameters: `[string]`NameContains, , `[string]`CivicNo, `[string]`Id, `[string]`RelationshipEntity, `[string]`RelationshipOrganisation, `[string]`LookUp, `[string]`LookUpType, `[string]`ExpandProperties, `[string]`APIReady
+          - [x] Parameters: `[string]`NameContains, , `[string]`CivicNo, `[guid]`Id, `[string]`RelationshipEntity, `[guid]`RelationshipOrganisation, `[string]`LookUp, `[string]`LookUpType, `[string]`ExpandProperties, `[string]`APIReady
       - [x] `Get-ISTDuty`
           - [x] Retrieve duties connected to an organisation.
-          - [x] Parameters: `[string]`Organisation, `[string]`DutyRole, `[string]`APIReady
+          - [x] Parameters: `[guid]`Organisation, `[string]`DutyRole, `[string]`APIReady
       - [x] `Get-ISTOrganisation`
           - [x] Retrieve your organisations
           - [x] Parameters: `[string]`OrgType, `[string]`SchoolType, `[string]`Id, `[string]`Parent, `[string]`APIReady

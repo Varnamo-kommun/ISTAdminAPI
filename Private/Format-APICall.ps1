@@ -232,7 +232,7 @@ function Format-APICall {
 					# Retrieving the aduser properties
 					$AllADStudents = Get-ADUser @ADParams | Select-Object $ADParams.Properties
 
-					foreach ($Student in $Result) {
+					$Final = foreach ($Student in $Result) {
 
 						if ($Student.civicNo.value -in $AllADStudents.vkPNR12) {
 							# Declare variable with AD information on current student.
@@ -246,7 +246,7 @@ function Format-APICall {
 							}
 
 							# Filter out group memberships
-							$GroupMemberships = foreach ($Group in $Student._embedded.groupMemberships) {
+							$GroupMemberships = foreach ($Group in $($Student._embedded.groupMemberships | Where-Object {$_.group.id -in $GroupIds})) {
 								if ($Group.startDate -le $CurrentDate -and $Group.endDate -ge $CurrentDate) {
 									$Group
 								}

@@ -51,7 +51,7 @@ function Get-ISTPerson {
 		[Parameter(
 			ParameterSetName = "LookUp"
 		)]
-		[guid[]]
+		[string[]]
 		$LookUp,
 
 		# Type of look up (ids or civicNos)

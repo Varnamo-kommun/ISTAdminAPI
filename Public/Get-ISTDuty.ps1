@@ -5,7 +5,7 @@
 	param (
 		# Organisation Id to retrieve duties from
 		[Parameter()]
-		[string]
+		[guid]
 		$Organisation,
 
 		# Type
