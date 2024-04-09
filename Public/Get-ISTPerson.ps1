@@ -118,24 +118,13 @@ function Get-ISTPerson {
 			}
 			LookUp {
 				Format-RequestUrl -Action persons_lookup -PersonsLookup $LookUp -Type $LookUpType
-				<# switch ($LookUpType) {
-					Ids       {Format-RequestUrl -Action persons_lookup -PersonsLookup $LookUp -Type ids}
-					CivicNos  {Format-RequestUrl -Action persons_lookup -PersonsLookup $LookUp -Type civicNos}
-				} #>
 			}
 		}
 
+		#! Rewrite how expanded properties are added to the request url. "&" all the way.
 		if ($ExpandProperties) {
 			foreach ($Property in $ExpandProperties) {
-				if (-not ($RequestUrl -like '*?expand*')) {
-					if ($LookUp) {
-						$RequestUrl.Url = $RequestUrl.Url + "?expand=$Property"
-					}
-					else {
-						$RequestUrl = $RequestUrl + "?expand=$Property"
-					}
-				}
-				else {
+				if (-not ($RequestUrl -like '*&expand*')) {
 					if ($LookUp) {
 						$RequestUrl.Url = $RequestUrl.Url + "&expand=$Property"
 					}
@@ -143,8 +132,19 @@ function Get-ISTPerson {
 						$RequestUrl = $RequestUrl + "&expand=$Property"
 					}
 				}
+				else {
+					if ($LookUp) {
+						$RequestUrl.Url = $RequestUrl.Url + "?expand=$Property"
+					}
+					else {
+						$RequestUrl = $RequestUrl + "?expand=$Property"
+					}
+				}
 			}
 		}
+
+		Write-Host "$($RequestUrl.Url)" -ForegroundColor Magenta
+		Write-Host $RequestUrl -ForegroundColor Green
 
 		try {
 			$Response = if ($RequestUrl.Url) {
