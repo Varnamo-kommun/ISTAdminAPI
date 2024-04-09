@@ -10,7 +10,6 @@
 * [Changelog](#Changelog)
 * [Roadmap](#roadmap)
 * [License](#license)
-* [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
 
 
@@ -96,12 +95,6 @@ Get-Help `Function-Name` -Full
  - [x] Adding compability for handling studyplans
 
  - [x] Adding compability for handling syllabuses
-
-
-<!-- CONTACT -->
-## Contact
-
-Mail me: [Simon Mellergård](mailto:simon.mellergard@gmail.com)
 
 
 <!-- ACKNOWLEDGEMENTS -->
