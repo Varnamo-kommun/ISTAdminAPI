@@ -1,16 +1,20 @@
 ﻿function Get-ISTDuty {
 
-	[CmdletBinding()]
+	[CmdletBinding(
+		DefaultParameterSetName = "Manual"
+	)]
 
 	param (
 		# Organisation Id to retrieve duties from
-		[Parameter()]
+		[Parameter(
+			ParameterSetName = "Manual"
+		)]
 		[guid]
 		$Organisation,
 
-		# Type
+		# Filter returned results based on duty role
 		[Parameter(
-			ParameterSetName = "DutyRole"
+			ParameterSetName = "Manual"
 		)]
 		[ValidateSet(
 			"Rektor",
@@ -36,21 +40,93 @@
 		[string]
 		$DutyRole,
 
-		# Determines how the returned object should be prepared as a payload for the Egil API
-		[Parameter()]
-		[ValidateSet(
-			"Organisation",
-			"SchoolUnitGroup",
-			"SchoolUnit",
-			"Student",
-			"StudentMemberShip",
-			"StudentGroup",
-			"TeacherRole",
-			"Employment",
-			"Teacher"
+		# Retrieve duties connected to one person
+		[Parameter(
+			ParameterSetName = "Manual"
 		)]
+		[guid]
+		$PersonId,
+
+		# Retrieve duties connected to one person
+		[Parameter(
+			ParameterSetName = "Id"
+		)]
+		[guid]
+		$Id,
+
+		#
+		[Parameter(
+			ParameterSetName = "LookUp"
+		)]
+		[guid[]]
+		$LookUp,
+
+		# Switch to determine whether to expand person connected to duty or not.
+		[Parameter(ParameterSetName = "LookUp")]
+		[Parameter(ParameterSetName = "Manual")]
+		[Parameter(ParameterSetName = "Id")]
+		[switch]
+		$ExpandPerson,
+
+		# Only retrieve duties that starts on or before provided date. Must be RFC3339 format
+		[Parameter(
+			ParameterSetName = "Manual"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
 		[string]
-		$APIReady
+		$StartDateOnOrBefore,
+
+		# Only retrieve duties that starts on or before provided date
+		[Parameter(
+			ParameterSetName = "Manual"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$StartDateOnOrAfter,
+
+		# Only retrieve duties that starts on or before provided date
+		[Parameter(
+			ParameterSetName = "Manual"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$EndDateOnOrBefore,
+
+		# Only retrieve duties that starts on or before provided date
+		[Parameter(
+			ParameterSetName = "Manual"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$EndDateOnOrAfter
 	)
 	
 	begin {
@@ -58,37 +134,29 @@
 			Get-AccessToken -Credential $(Get-Secret -LiteralPath $ISTSettings.ClientAuthorizationPath)
 		}
 	}
-	
+
 	process {
+
+		$RequestUrl = Format-RequestUrl -Action duties -Properties $PSBoundParameters
 		
-		$RequestUrl = if ($DutyRole) {
-			if ($Organisation) {
-				Format-RequestUrl -Action duties -DutyRole $DutyRole -Organisation $Organisation
-			}
-			else {
-				Format-RequestUrl -Action duties -DutyRole $DutyRole
-			}
+		if ($RequestUrl.Url) {
+			Write-Host $RequestUrl.Url -ForegroundColor Yellow
 		}
 		else {
-			Format-RequestUrl -Action duties
+			Write-Host $RequestUrl -ForegroundColor Yellow
 		}
-
-		Write-Host $RequestUrl -ForegroundColor Green
 
 		try {
-			$Response = Invoke-ISTAdminAPI -RequestUrl $RequestUrl -Method Get -ErrorAction Stop
-			
-			$Data = if ($APIReady) {
-				Format-APICall -Property duties -InputObject $Response -APIReady $APIReady -ErrorAction Stop
+			$Response = if ($RequestUrl.Url) {
+				Invoke-ISTAdminAPI -Payload $RequestUrl -Method POST -ErrorAction Stop
 			}
 			else {
-				Format-APICall -Property duties -InputObject $Response -ErrorAction Stop
+				Invoke-ISTAdminAPI -RequestUrl $RequestUrl -Method GET -ErrorAction Stop
 			}
 
+			$Data = Format-APICall -InputObject $Response -ErrorAction Stop
 		}
 		catch {
-			# Write-Error $_.Exception.Message
-			# Get-Info
 			Write-Error "Caught exception: $($_.Exception.Message) at $($_.InvocationInfo.ScriptLineNumber)"
 		}
 	}
@@ -96,8 +164,10 @@
 	end {
 		if ($Response) {
 			return $Data
+			# return $Response
 		}
 		else {
+			# return $RequestUrl
 			return $RequestUrl
 		}
 	}

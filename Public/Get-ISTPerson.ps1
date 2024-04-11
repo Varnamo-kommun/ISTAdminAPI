@@ -1,4 +1,41 @@
 function Get-ISTPerson {
+	<#
+	.SYNOPSIS
+	Retrieve one or more person(s) from IST.
+
+	.DESCRIPTION
+	Long description
+
+	.PARAMETER NameContains
+	Parameter description
+
+	.PARAMETER CivicNo
+	Parameter description
+
+	.PARAMETER Id
+	Parameter description
+
+	.PARAMETER RelationshipEntity
+	Parameter description
+
+	.PARAMETER RelationshipOrganisation
+	Parameter description
+
+	.PARAMETER LookUp
+	Parameter description
+
+	.PARAMETER LookUpType
+	Parameter description
+
+	.PARAMETER ExpandProperties
+	Parameter description
+
+	.EXAMPLE
+	An example
+
+	.NOTES
+	Author: Simon Mellergård | It-center, Värnamo kommun
+	#>
 
 	[CmdletBinding()]
 
@@ -47,6 +84,66 @@ function Get-ISTPerson {
 		[guid]
 		$RelationshipOrganisation,
 
+		# Only retrieve duties that starts on or before provided date. Must be RFC3339 format
+		[Parameter(
+			ParameterSetName = "Relationship"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$StartDateOnOrBefore,
+
+		# Only retrieve duties that starts on or before provided date
+		[Parameter(
+			ParameterSetName = "Relationship"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$StartDateOnOrAfter,
+
+		# Only retrieve duties that starts on or before provided date
+		[Parameter(
+			ParameterSetName = "Relationship"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$EndDateOnOrBefore,
+
+		# Only retrieve duties that starts on or before provided date
+		[Parameter(
+			ParameterSetName = "Relationship"
+		)]
+		[ValidateScript({
+			if (-not ($_ -match "^(\d{4}-\d{2}-\d{2})$")) {
+				throw $_.Exception.Message
+			}
+			else {
+				return $true
+			}
+		})]
+		[string]
+		$EndDateOnOrAfter,
+
 		# Parameter help description
 		[Parameter(
 			ParameterSetName = "LookUp"
@@ -75,23 +172,7 @@ function Get-ISTPerson {
 			"groupMemberships"
 		)]
 		[string[]]
-		$ExpandProperties,
-
-		# Determines how the returned object should be prepared as a payload for the Egil API
-		[Parameter()]
-		[ValidateSet(
-			"Organisation",
-			"SchoolUnitGroup",
-			"SchoolUnit",
-			"Student",
-			"StudentMemberShip",
-			"StudentGroup",
-			"TeacherRole",
-			"Employment",
-			"Teacher"
-		)]
-		[string]
-		$APIReady
+		$ExpandProperties
 	)
 	
 	begin {
@@ -101,93 +182,27 @@ function Get-ISTPerson {
 	}
 	
 	process {
-		
-		$RequestUrl = switch ($PSCmdlet.ParameterSetName) {
-			NameContains {
-				Format-RequestUrl -Action persons -Filter $NameContains
-			}
-			CivicNo {
-				Format-RequestUrl -Action persons -CivicNo $CivicNo
-			}
-			Id {
-				Format-RequestUrl -Action persons_id -Id $Id
-				# Write-Host "Här var vi!" -ForegroundColor Green
-			}
-			Relationship {
-				Format-RequestUrl -Action persons_relationship -RelationshipEntity $RelationshipEntity -RelationshipOrganisation $RelationshipOrganisation
-			}
-			LookUp {
-				Format-RequestUrl -Action persons_lookup -PersonsLookup $LookUp -Type $LookUpType
-			}
-		}
 
-		#! Rewrite how expanded properties are added to the request url. "&" all the way.
-		if ($ExpandProperties) {
-			foreach ($Property in $ExpandProperties) {
-				if (-not ($RequestUrl -like '*&expand*')) {
-					if ($LookUp) {
-						$RequestUrl.Url = $RequestUrl.Url + "&expand=$Property"
-					}
-					else {
-						$RequestUrl = $RequestUrl + "&expand=$Property"
-					}
-				}
-				else {
-					if ($LookUp) {
-						$RequestUrl.Url = $RequestUrl.Url + "?expand=$Property"
-					}
-					else {
-						$RequestUrl = $RequestUrl + "?expand=$Property"
-					}
-				}
-			}
-		}
+		$RequestUrl = Format-RequestUrl -Action persons -Properties $PSBoundParameters
 
-		Write-Host "$($RequestUrl.Url)" -ForegroundColor Magenta
-		Write-Host $RequestUrl -ForegroundColor Green
+		if ($RequestUrl.Url) {
+			Write-Host $RequestUrl.Url -ForegroundColor Yellow
+		}
+		else {
+			Write-Host $RequestUrl -ForegroundColor Yellow
+		}
 
 		try {
 			$Response = if ($RequestUrl.Url) {
-				Write-Host $RequestUrl -ForegroundColor Green
 				Invoke-ISTAdminAPI -Payload $RequestUrl -Method POST -ErrorAction Stop
 			}
 			else {
 				Invoke-ISTAdminAPI -RequestUrl $RequestUrl -Method GET -ErrorAction Stop
 			}
 
-			$Data = switch ($PSCmdlet.ParameterSetName) {
-				NameContains {
-					Format-APICall -Property persons -InputObject $Response -ErrorAction Stop
-				}
-				CivicNo {
-					if ($APIReady) {
-						Format-APICall -Property persons -InputObject $Response -APIReady -ErrorAction Stop
-					}
-					else {
-						Format-APICall -Property persons -InputObject $Response -ErrorAction Stop
-					}
-				}
-				Id {
-					Format-APICall -Property persons_id -InputObject $Response -ErrorAction Stop
-				}
-				Relationship {
-					if ($APIReady) {
-						$Global:EgilSchoolUnits = Get-EgilSchoolUnit -All
-						Format-APICall -Property persons_relationship -InputObject $Response -APIReady $APIReady -RelationshipOrganisation $RelationshipOrganisation -ErrorAction Stop
-						Remove-Variable EgilSchoolUnits -Scope Global -Force
-					}
-					else {
-						Format-APICall -Property persons_relationship -InputObject $Response -ErrorAction Stop
-					}
-				}
-				LookUp {
-					Format-APICall -Property persons_lookup -InputObject $Response -ErrorAction Stop
-				}
-			}
+			$Data = Format-APICall -InputObject $Response -ErrorAction Stop
 		}
 		catch {
-			# Write-Error $_.Exception.Message
-			# Get-Info
 			Write-Error "Caught exception: $($_.Exception.Message) at $($_.InvocationInfo.ScriptLineNumber)"
 		}
 	}
@@ -199,8 +214,6 @@ function Get-ISTPerson {
 		else {
 			return $RequestUrl
 		}
-		# return $Response
-		# return $RequestUrl
 	}
 }
 # End function.

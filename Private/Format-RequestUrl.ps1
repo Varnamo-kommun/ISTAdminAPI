@@ -149,16 +149,18 @@
 		$RelationshipOrganisation,
 
 		# Properties to include in the API call
-		[Parameter()]
-		[ValidateSet(
-			"duties",
-			"responsibleFor",
-			"placements",
-			"ownedPlacements",
-			"groupMemberships"
+		[Parameter(
+			ParameterSetName = "Properties"
 		)]
-		[string[]]
+		[System.Object]
 		$Properties,
+
+		# Properties to expand when retrieving duties in the API call (Get-ISTDuty).
+		[Parameter(
+			ParameterSetName = "DutyRole"
+		)]
+		[System.Object]
+		$DutyProperties,
 
 		# Type
 		[Parameter(
@@ -256,7 +258,7 @@
 			persons {
 				$UrlBase = "$($ISTSettings.Server)/persons?"
 
-				switch ($PSCmdlet.ParameterSetName) {
+				<# switch ($PSCmdlet.ParameterSetName) {
 					Filter {
 						if ($Filter.Contains(' ')) {
 							$FilterSplit = $Filter.Split(' ')
@@ -283,34 +285,210 @@
 							}
 						}
 
+						if ($Properties) {
+							foreach ($Property in $Properties) {
+								$UrlPart = $UrlPart + "&expand=$Property"
+							}
+						}
+
 						$UrlBase+$(-join $UrlPart)
 					}
 					CivicNo {
-						$UrlBase + "civicNo=$CivicNo"
+						$UrlPart = "civicNo=$CivicNo"
+
+						if ($Properties) {
+							foreach ($Property in $Properties) {
+								$UrlPart = $UrlPart + "&expand=$Property"
+							}
+						}
+
+						$UrlBase + $UrlPart
+					}
+				} #>
+
+				$PropArray = switch ($Properties.Keys) {
+					NameContains {"&nameContains=$($Properties.NameContains)"}
+					CivicNo {"&civicNo=$($Properties.CivicNo)"}
+					Id {
+						$UrlBase = "$($ISTSettings.Server)/persons/$($Properties.Id)"
+						if ($Properties.ExpandProperties) {
+							$UrlBase = $UrlBase + "?"
+						}
+					}
+					RelationshipEntity {"&relationship.entity.type=$($Properties.RelationshipEntity)"}
+					RelationshipOrganisation {"&relationship.organisation=$($Properties.RelationshipOrganisation)"}
+					LookUp {}
+					LookUpType {
+						$LookUp = if ($Properties.ExpandProperties) {
+							foreach ($LookUpExpand in $Properties.ExpandProperties) {
+								if (-not $LookUpBuilder) {
+									$LookUpBuilder = "?expand=$($LookUpExpand)"
+								}
+								else {
+									$LookUpBuilder = $LookUpBuilder + "&expand=$($LookUpExpand)"
+								}
+							}
+
+							[PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/persons/lookup" + $LookUpBuilder
+								Data = [PSCustomObject]@{
+									$($Properties.LookUpType) = $Properties.Lookup
+								} | ConvertTo-Json
+							}
+						}
+						else {
+							[PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/persons/lookup"
+								Data = [PSCustomObject]@{
+									$($Properties.LookUpType) = $Properties.Lookup
+								} | ConvertTo-Json
+							}
+						}
+					}
+					ExpandProperties {
+						foreach ($Expand in $Properties.ExpandProperties) {
+							"&expand=$($Expand)"
+						}
+					}
+					StartDateOnOrAfter {"&relationship.startDate.onOrAfter=$($Properties.StartDateOnOrAfter)"}
+					StartDateOnOrBefore {"&relationship.startDate.onOrBefore=$($Properties.StartDateOnOrBefore)"}
+					EndDateOnOrAfter {"&relationship.endDate.onOrAfter=$($Properties.EndDateOnOrAfter)"}
+					EndDateOnOrBefore {"&relationship.endDate.onOrBefore=$($Properties.EndDateOnOrBefore)"}
+				}
+
+				if ($LookUp) {
+					$LookUp
+				}
+				else {
+					foreach ($Property in $PropArray) {
+						if (-not $StringBuilder) {
+							$StringBuilder = $Property
+						}
+						else {
+							$StringBuilder = $StringBuilder + $Property
+						}
+					}
+	
+					if ($Properties.ExpandProperties) {
+						$UrlBase + $StringBuilder.TrimStart("&")
+					}
+					else {
+						$UrlBase + $StringBuilder
 					}
 				}
 			}
 			persons_lookup {
+				$UrlBase = "$($ISTSettings.Server)/persons/lookup"
+
+				if ($Properties) {
+					foreach ($Property in $Properties) {
+						if (-not $StringBuilder) {
+							$StringBuilder = "?expand=$Property"
+						}
+						else {
+							$StringBuilder = $StringBuilder + "&expand=$Property"
+						}
+					}
+					$UrlBase = $UrlBase + $StringBuilder
+				}
+
 				[PSCustomObject]@{
-					Url = "$($ISTSettings.Server)/persons/lookup"
+					Url = $UrlBase
 					Data = [PSCustomObject]@{
 						$Type = $PersonsLookup
 					} | ConvertTo-Json
 				}
 			}
 			persons_id {
-				$UrlBase = "$($ISTSettings.Server)/persons/"
-				$UrlBase + $Id
+				$UrlBase = "$($ISTSettings.Server)/persons/$Id"
+				
+				if ($Properties) {
+					foreach ($Property in $Properties) {
+						if (-not $StringBuilder) {
+							$StringBuilder = "?expand=$Property"
+						}
+						else {
+							$StringBuilder = $StringBuilder + "&expand=$Property"
+						}
+					}
+					$UrlBase = $UrlBase + $StringBuilder
+				}
+				$UrlBase
 			}
 			persons_relationship {
-				$UrlBase = "$($ISTSettings.Server)/persons?relationship.entity.type=$RelationshipEntity&relationship.organisation=$RelationshipOrganisation&relationship.startDate.onOrAfter=2023-07-01"
+				$UrlBase = "$($ISTSettings.Server)/persons?relationship.entity.type=$RelationshipEntity&relationship.organisation=$RelationshipOrganisation"
+
+				if ($Properties) {
+					foreach ($Property in $Properties) {
+						$UrlBase = $UrlBase + "&expand=$Property"
+					}
+				}
 				$UrlBase
 			}
 			placements {}
 			placements_lookup {}
 			placements_id {}
 			duties {
-				switch ($PSCmdlet.ParameterSetName) {
+				$UrlBase = "$($ISTSettings.Server)/duties?"
+
+				$PropArray = switch ($Properties.Keys) {
+					Organisation {"&organisation=$($Properties.Organisation)"}
+					DutyRole {"&dutyRole=$($Properties.DutyRole)"}
+					PersonId {"&person=$($Properties.PersonId)"}
+					Id {
+						$UrlBase = "$($ISTSettings.Server)/duties/$($Properties.Id)"
+						if ($Properties.ExpandPerson) {
+							$UrlBase = $UrlBase + "?"
+						}
+					}
+					LookUp {
+						$LookUp = if ($Properties.ExpandPerson) {
+							$LookUpBuilder = "/lookup?expand=person"
+
+							[PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/duties" + $LookUpBuilder
+								Data = [PSCustomObject]@{
+									ids = $Properties.LookUp
+								} | ConvertTo-Json
+							}
+						}
+						else {
+							[PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/duties/lookup"
+								Data = [PSCustomObject]@{
+									ids = $Properties.Lookup
+								} | ConvertTo-Json
+							}
+						}
+					}
+					ExpandPerson {"&expand=person"}
+					StartDateOnOrAfter {"&startDate.onOrAfter=$($Properties.StartDateOnOrAfter)"}
+					StartDateOnOrBefore {"&startDate.onOrBefore=$($Properties.StartDateOnOrBefore)"}
+					EndDateOnOrAfter {"&endDate.onOrAfter=$($Properties.EndDateOnOrAfter)"}
+					EndDateOnOrBefore {"&endDate.onOrBefore=$($Properties.EndDateOnOrBefore)"}
+				}
+
+				if ($LookUp) {
+					$LookUp
+				}
+				else {
+					foreach ($Property in $PropArray) {
+						if (-not $StringBuilder) {
+							$StringBuilder = $Property
+						}
+						else {
+							$StringBuilder = $StringBuilder + $Property
+						}
+					}
+	
+					if ($Properties.ExpandPerson) {
+						$UrlBase + $StringBuilder.TrimStart("&")
+					}
+					else {
+						$UrlBase + $StringBuilder
+					}
+				}
+				<# switch ($PSCmdlet.ParameterSetName) {
 					DutyRole {
 						# $SpecialChar = ConvertFrom-SpecialCharacter -String $DutyRole
 
@@ -361,7 +539,7 @@
 						$UrlBase = "$($ISTSettings.Server)/duties?person=$Id&expand=person"
 						$UrlBase
 					}
-				}
+				} #>
 			}
 			duties_lookup {}
 			duties_id {}

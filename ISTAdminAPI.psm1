@@ -46,7 +46,6 @@ else {
         $CSV = Import-Csv -Path (Get-Content -Path $ISTAdminCheckSettingsFilePath)
         New-Variable -Name ISTSettings -Value $CSV -Scope Global -Force
     }
-    # $Script:ADProperties = @($Settings.PSObject.Properties | Where-Object {($_.Name -notlike '*Path') -and ($_.Name -ne 'Server')} | Select-Object -ExpandProperty Value)
     $SettingsFileExists  = $true
 
     Export-ModuleMember -Function $Public.Basename
