@@ -1,5 +1,47 @@
 ﻿function Get-ISTDuty {
+	<#
+	.SYNOPSIS
+	Retrieve a duty from EduCloud
 
+	.DESCRIPTION
+	This cmdlet will help you retrieve one or more duties based on how you fill out the parameters.
+
+	.PARAMETER Organisation
+	Retrieve duties connected to a specific organisation.
+
+	.PARAMETER DutyRole
+	Only retrieve a specific type of duty
+
+	.PARAMETER PersonId
+	Retrieve all duties connected to a specific person
+
+	.PARAMETER Id
+	Retrieve a specific duty based on it's id.
+
+	.PARAMETER LookUp
+	Feed this parameter with a hashtable of duty id's to retrieve them from the API
+
+	.PARAMETER ExpandPerson
+	Switch parameter that will provide the person connected to the duty/duties that you retrieve
+
+	.PARAMETER StartDateOnOrBefore
+	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same starting date or started before
+
+	.PARAMETER StartDateOnOrAfter
+	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same starting date or starts after
+
+	.PARAMETER EndDateOnOrBefore
+	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same ending date or ends before
+
+	.PARAMETER EndDateOnOrAfter
+	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same ending date or ends before
+
+	.EXAMPLE
+	! Start filling out examples. Be sure to cover all scenarios. 2024-04-12
+
+	.NOTES
+	Author: Simon Mellergård | It-center, Värnamo kommun
+	#>
 	[CmdletBinding(
 		DefaultParameterSetName = "Manual"
 	)]
