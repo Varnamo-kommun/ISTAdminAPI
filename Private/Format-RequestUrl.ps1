@@ -433,7 +433,14 @@
 
 				$PropArray = switch ($Properties.Keys) {
 					Organisation {"&organisation=$($Properties.Organisation)"}
-					DutyRole {"&dutyRole=$($Properties.DutyRole)"}
+					DutyRole {
+						if ($Properties.DutyRole -match "[\s-åäö]+") {
+							"&dutyRole=$(ConvertFrom-SpecialCharacter -String $Properties.DutyRole)"
+						}
+						else {
+							"&dutyRole=$($Properties.DutyRole)"
+						}
+					}
 					PersonId {"&person=$($Properties.PersonId)"}
 					Id {
 						$UrlBase = "$($ISTSettings.Server)/duties/$($Properties.Id)"
