@@ -65,7 +65,7 @@
         [Parameter(
             ParameterSetName = "Id"
         )]
-        [string]
+        [guid]
         $Id,
 
         # Retrieve all children of parent Id
@@ -73,23 +73,7 @@
             ParameterSetName = "Id"
         )]
         [switch]
-        $Parent,
-
-        # Determines how the returned object should be prepared as a payload for the Egil API
-        [Parameter()]
-        [ValidateSet(
-            "Organisation",
-            "SchoolUnitGroup",
-            "SchoolUnit",
-            "Student",
-            "StudentMemberShip",
-            "StudentGroup",
-            "TeacherRole",
-            "Employment",
-            "Teacher"
-        )]
-        [string]
-        $APIReady
+        $Parent
     )
     
     begin {

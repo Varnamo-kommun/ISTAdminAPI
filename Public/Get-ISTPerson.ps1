@@ -84,6 +84,36 @@ function Get-ISTPerson {
 		[guid]
 		$RelationshipOrganisation,
 
+		# Parameter help description
+		[Parameter(
+			ParameterSetName = "LookUp"
+		)]
+		[string[]]
+		$LookUp,
+
+		# Type of look up (ids or civicNos)
+		[Parameter(
+			ParameterSetName = "LookUp"
+		)]
+		[ValidateSet(
+			"ids",
+			"civicNos"
+		)]
+		[string]
+		$LookUpType,
+
+		# Properties to expand
+		[Parameter()]
+		[ValidateSet(
+			"duties",
+			"responsibleFor",
+			"placements",
+			"ownedPlacements",
+			"groupMemberships"
+		)]
+		[string[]]
+		$ExpandProperties,
+
 		# Only retrieve duties that starts on or before provided date. Must be RFC3339 format
 		[Parameter(
 			ParameterSetName = "Relationship"
@@ -142,37 +172,7 @@ function Get-ISTPerson {
 			}
 		})]
 		[string]
-		$EndDateOnOrAfter,
-
-		# Parameter help description
-		[Parameter(
-			ParameterSetName = "LookUp"
-		)]
-		[string[]]
-		$LookUp,
-
-		# Type of look up (ids or civicNos)
-		[Parameter(
-			ParameterSetName = "LookUp"
-		)]
-		[ValidateSet(
-			"ids",
-			"civicNos"
-		)]
-		[string]
-		$LookUpType,
-
-		# Properties to expand
-		[Parameter()]
-		[ValidateSet(
-			"duties",
-			"responsibleFor",
-			"placements",
-			"ownedPlacements",
-			"groupMemberships"
-		)]
-		[string[]]
-		$ExpandProperties
+		$EndDateOnOrAfter
 	)
 	
 	begin {
