@@ -73,16 +73,16 @@ Another popup window will appear asking you to locate your credential file. This
       - [x] `Get-ISTDuty`
           - [x] Retrieve one or multiple duties connected to an organisation.
           - [x] Parameters: 
-                `[guid]`Organisation
-                `[string]`DutyRole
-                `[guid]`PersonId
-                `[guid]`Id
-                `[guid[]]`LookUp
-                `[switch]`ExpandPerson
-                `[string]`StartDateOnOrBefore
-                `[string]`StartDateOnOrAfter
-                `[string]`EndDateOnOrBefore
-                `[string]`EndDateOnOrAfter
+               - `[guid]`Organisation
+               - `[string]`DutyRole
+               - `[guid]`PersonId
+               - `[guid]`Id
+               - `[guid[]]`LookUp
+               - `[switch]`ExpandPerson
+               - `[string]`StartDateOnOrBefore
+               - `[string]`StartDateOnOrAfter
+               - `[string]`EndDateOnOrBefore
+               - `[string]`EndDateOnOrAfter
       - [x] `Get-ISTOrganisation`
           - [x] Retrieve your organisations
           - [x] Parameters: `[string]`OrgType, `[string]`SchoolType, `[string]`Id, `[string]`Parent, `[string]`APIReady
