@@ -47,26 +47,29 @@ Please make sure you've followed each one.
 git clone https://github.com/th3d00rw4y/ISTAdminAPI.git
 ```
 2. Upon first import of the module, you will only have access to the following Cmdlets:
-`New-Secret`, `Get-Secret`, `Initialize-SettingsFile`
+- `New-Secret`
+- `Get-Secret`
+- `Initialize-SettingsFile`
 
-3. Start by creating a credential file: `New-Secret -Name <Name of the file> -Path <Path to store the secret> -Username <The API service account username>`
+3. Start by creating a credential file: 
+`New-Secret -Name <Name of the file> -Path <Path to store the secret> -Username <The API service account username>`
 You will be prompted to enter the password for the service account.
-Note that the credential file will only be useable by the account thats creates it, and on the very same machine.
+Note that the credential file will only be readable by the account thats creates it, and on the very same machine. So if you are going to automate things with the module, be sure to generate the credential file with the appropriate service account.
 
-4. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
+1. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
 A popup window will appear asking you to select a folder to store your settings. The settings will be stored in .CSV format.
 Another popup window will appear asking you to locate your credential file. This will be the file that you previously created with the `New-Secret` Cmdlet.
 
-5. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
+1. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
 
-6. See each Cmdlet help section for further usage.
+2. See each Cmdlet help section for further usage.
 
 ## Changelog
 
 `ISTAdminAPI` is currently only maintained by me. I will try to add as many features as possible.
-- Version 0.0.1.1 - 2024.04-15
+- Version 0.0.1.1 - 2024-04-15
   - [x] Repository made public
-  - [ ] New cmdlets:
+  - [x] New cmdlets:
     - [x] `Get-ISTOrganisation` - Retrieve your organisations
     - [x] Parameters:
       - `[string[]]`OrgType
@@ -79,7 +82,7 @@ Another popup window will appear asking you to locate your credential file. This
       - `[string]`GroupType
       - `[string]`Parent
       - `[string]`SchoolType
-- Version 0.0.1.0 - 2024.04.02
+- Version 0.0.1.0 - 2024-04-02
   - [x] First commit.
   - [x] Available but not finished public cmdlets:
     - [x] `Get-ISTPerson` - Retrieve users/persons from the EduCloud API.
