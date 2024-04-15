@@ -44,7 +44,7 @@ Please make sure you've followed each one.
 
 1. Clone the repo
 ```sh
-git clone https://github.com/th3d00rw4y/ISTAdminAPI.git
+git clone https://github.com/VMO-IT-avdelningen/ISTAdminAPI.git
 ```
 2. Upon first import of the module, you will only have access to the following Cmdlets:
 - `New-Secret`
