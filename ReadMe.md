@@ -1,16 +1,16 @@
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
-* [About the Project](#about-the-project)
-    * [Built With](#built-with)
-* [Getting Started](#getting-started)
-    * [Prerequisites](#prerequisites)
-    * [Installation](#installation)
-* [Usage](#usage)
-* [Changelog](#Changelog)
-* [Roadmap](#roadmap)
-* [License](#license)
-* [Acknowledgements](#acknowledgements)
+- [Table of Contents](#table-of-contents)
+- [About The Project](#about-the-project)
+  - [Built With](#built-with)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Changelog](#changelog)
+- [Usage](#usage)
+- [Roadmap](#roadmap)
+- [Acknowledgements](#acknowledgements)
 
 
 
@@ -64,33 +64,52 @@ Another popup window will appear asking you to locate your credential file. This
 ## Changelog
 
 `ISTAdminAPI` is currently only maintained by me. I will try to add as many features as possible.
-- 0.0.1.0 - 2024.04.02
+- Version 0.0.1.1 - 2024.04-15
+  - [x] Repository made public
+  - [ ] New cmdlets:
+    - [x] `Get-ISTOrganisation` - Retrieve your organisations
+    - [x] Parameters:
+      - `[string[]]`OrgType
+      - `[string[]]`SchoolType
+      - `[guid]`Id
+      - `[switch]`Parent
+  - [x] `Get-ISTStudentGroup` - Retrieve your student groups.
+    - [x] Parameters:
+      - `[string]`Id
+      - `[string]`GroupType
+      - `[string]`Parent
+      - `[string]`SchoolType
+- Version 0.0.1.0 - 2024.04.02
   - [x] First commit.
   - [x] Available but not finished public cmdlets:
-      - [x] `Get-ISTPerson`
-          - [x] This cmdlet is used to retrieve users/persons from the EduCloud API. See the cmdlet help section for further help and examples.
-          - [x] Parameters: `[string]`NameContains, , `[string]`CivicNo, `[guid]`Id, `[string]`RelationshipEntity, `[guid]`RelationshipOrganisation, `[string]`LookUp, `[string]`LookUpType, `[string]`ExpandProperties, `[string]`APIReady
-      - [x] `Get-ISTDuty`
-          - [x] Retrieve one or multiple duties connected to an organisation.
-          - [x] Parameters: 
-               - `[guid]`Organisation
-               - `[string]`DutyRole
-               - `[guid]`PersonId
-               - `[guid]`Id
-               - `[guid[]]`LookUp
-               - `[switch]`ExpandPerson
-               - `[string]`StartDateOnOrBefore
-               - `[string]`StartDateOnOrAfter
-               - `[string]`EndDateOnOrBefore
-               - `[string]`EndDateOnOrAfter
-      - [x] `Get-ISTOrganisation`
-          - [x] Retrieve your organisations
-          - [x] Parameters: `[string]`OrgType, `[string]`SchoolType, `[string]`Id, `[string]`Parent, `[string]`APIReady
-      - [x] `Get-ISTStudentGroup`
-          - [x] Retrieve your student groups.
-          - [x] Parameters: `[string]`Id, `[string]`GroupType, `[string]`Parent, `[string]`SchoolType, `[string]`APIReady
+    - [x] `Get-ISTPerson` - Retrieve users/persons from the EduCloud API.
+    - [x] Parameters: 
+      - `[string]`NameContains
+      - `[string]`CivicNo
+      - `[guid]`Id
+      - `[string]`RelationshipEntity
+      - `[guid]`RelationshipOrganisation
+      - `[guid[]]`LookUp
+      - `[string]`LookUpType
+      - `[string]`ExpandProperties
+      - `[string]`StartDateOnOrBefore
+      - `[string]`StartDateOnOrAfter
+      - `[string]`EndDateOnOrBefore
+      - `[string]`EndDateOnOrAfter
+    - [x] `Get-ISTDuty` - Retrieve one or multiple duties connected to an organisation.
+    - [x] Parameters: 
+      - `[guid]`Organisation
+      - `[string]`DutyRole
+      - `[guid]`PersonId
+      - `[guid]`Id
+      - `[guid[]]`LookUp
+      - `[switch]`ExpandPerson
+      - `[string]`StartDateOnOrBefore
+      - `[string]`StartDateOnOrAfter
+      - `[string]`EndDateOnOrBefore
+      - `[string]`EndDateOnOrAfter
   - [x] Currently under construction:
-      - [x] `Get-ISTSchoolUnit`
+    - [x] `Get-ISTSchoolUnit`
 <!-- USAGE EXAMPLES -->
 ## Usage
 
