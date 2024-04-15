@@ -13,22 +13,21 @@ function Get-AccessToken {
 	Get-AccessToken -Credential $CredObject
 	
 	.NOTES
-	Author: Simon Mellergård | It-avdelningen, Värnamo kommun
+	Author: Simon Mellergård | It-center, Värnamo kommun
 	#>
 
 	[CmdletBinding()]
 
 	param (
-		# Credentials provided from vendor.
+		# Credential object with information provided from vendor.
 		[parameter(Mandatory = $true)]
 		[System.Management.Automation.PSCredential]
 		$Credential
 	)
 
 	begin {
-
 		$RefreshToken = Confirm-NeedNewAccessToken
-    }
+	}
 
 	process {
 
@@ -90,6 +89,6 @@ function Get-AccessToken {
 		else {
 			Write-Output "Current token still active."
 		}
-    }
+	}
 }
 # End function.
