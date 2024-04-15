@@ -34,10 +34,30 @@
 	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same ending date or ends before
 
 	.PARAMETER EndDateOnOrAfter
-	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same ending date or ends before
+	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same ending date or ends after
 
 	.EXAMPLE
-	! Start filling out examples. Be sure to cover all scenarios. 2024-04-12
+	Get-ISTDuty -Organisation <Organisation GUID> -DutyRole Rektor -StartDateOnOrBefore 2024-04-15 -EndDateOnOrAfter 2024-04-15
+	This example will retrieve all duties with the duty role 'Rektor' that connected to the specified organisation. It will also filter out duties that don't match the provided start/end dates.
+
+	.EXAMPLE
+	Get-ISTDuty -PersonId <Person GUID>
+	This example will retrieve all duties connected to the specified person
+
+	.EXAMPLE
+	$DutyIds = @(
+		"108f0e66-dadf-47b3-8c96-9122eebd141c",
+		"dd181c39-c6c9-4d42-b2d7-86b66dcb6ad7",
+		"f876453d-591f-4460-bd81-cd8b7a30a140",
+		"1ad3aa60-b13d-4b5e-9dc5-e1f9c2deb9e0"
+	)
+
+	Get-ISTDuty -LookUp $DutyIds -ExpandPerson
+	This example will retrieve all four duties declared in $DutyIds and also get the connected person as an expandable object.
+
+	.EXAMPLE
+	Get-ISTDuty -DutyRole 'Studie- och yrkesvägledare'
+	This example will retrieve all duties with the role 'Studie- och yrkesvägledare' from your entire organisation.
 
 	.NOTES
 	Author: Simon Mellergård | It-center, Värnamo kommun
@@ -172,30 +192,38 @@
 	)
 	
 	begin {
+		# Check to see if there exists an active access token. If it doesn't, one will be retrieved with information previously provided with the Initialize-SettingsFile cmdlet.
 		if (Confirm-NeedNewAccessToken) {
 			Get-AccessToken -Credential $(Get-Secret -LiteralPath $ISTSettings.ClientAuthorizationPath)
 		}
 	}
 
 	process {
-
+		# Format the request string based on what parameters used.
 		$RequestUrl = Format-RequestUrl -Action duties -Properties $PSBoundParameters
 		
+		#region Debugging section
 		if ($RequestUrl.Url) {
 			Write-Host $RequestUrl.Url -ForegroundColor Yellow
 		}
 		else {
 			Write-Host $RequestUrl -ForegroundColor Yellow
 		}
+		#endregion Debugging section
 
+		# Try/Catch section that either sends a request string or a json payload based on what parameters used to the EduCloud API
 		try {
+			# Determine whether to send a payload or request string
 			$Response = if ($RequestUrl.Url) {
+				# Send the actual payload to the API
 				Invoke-ISTAdminAPI -Payload $RequestUrl -Method POST -ErrorAction Stop
 			}
 			else {
+				# Send the request string to the API
 				Invoke-ISTAdminAPI -RequestUrl $RequestUrl -Method GET -ErrorAction Stop
 			}
 
+			# Converts the response from json into objects. Removes the "data" container object when the response is returned with it.
 			$Data = Format-APICall -InputObject $Response -ErrorAction Stop
 		}
 		catch {
@@ -205,11 +233,11 @@
 	
 	end {
 		if ($Response) {
+			# Return the formatted object(s)
 			return $Data
-			# return $Response
 		}
 		else {
-			# return $RequestUrl
+			# For debbuging purposes
 			return $RequestUrl
 		}
 	}
