@@ -31,7 +31,7 @@ In light of DNP (Digitala nationella prov) we saw the potential of the EduCloud 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-First, I'm glad you're here. Hopefully you will find this module to some use for your organisation.
+First, we're happy that you are here! Hopefully you will find some use for this module in your organisation.
 There are a few steps you will need to complete before you can use this module.
 Please make sure you've followed each one.
 
@@ -46,7 +46,7 @@ Please make sure you've followed each one.
 ```sh
 git clone https://github.com/VMO-IT-avdelningen/ISTAdminAPI.git
 ```
-2. Upon first import of the module, you will only have access to the following Cmdlets:
+2. Upon first import of the module, you will only have access to the following cmdlets:
 - `New-Secret`
 - `Get-Secret`
 - `Initialize-SettingsFile`
