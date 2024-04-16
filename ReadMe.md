@@ -76,12 +76,6 @@ Another popup window will appear asking you to locate your credential file. This
       - `[string[]]`SchoolType
       - `[guid]`Id
       - `[switch]`Parent
-  - [x] `Get-ISTStudentGroup` - Retrieve your student groups.
-    - [x] Parameters:
-      - `[string]`Id
-      - `[string]`GroupType
-      - `[string]`Parent
-      - `[string]`SchoolType
 - Version 0.0.1.0 - 2024-04-02
   - [x] First commit.
   - [x] Available but not finished public cmdlets:
@@ -122,11 +116,10 @@ Get-Help `Function-Name` -Full
 <!-- ROADMAP -->
 ## Roadmap
 
- - [x] Adding compability for handling programmes
-
- - [x] Adding compability for handling studyplans
-
- - [x] Adding compability for handling syllabuses
+ - [ ] Adding compability for handling programmes
+ - [ ] Adding compability for handling studyplans
+ - [ ] Adding compability for handling syllabuses
+ - [ ] Adding compability for handling groups
 
 
 <!-- ACKNOWLEDGEMENTS -->
