@@ -7,193 +7,18 @@
 		[Parameter()]
 		[ValidateSet(
 			'organisations',
-			'organisations_lookup',
-			'organisations_id',
 			'persons',
-			'persons_lookup',
-			'persons_id',
-			'persons_relationship',
 			'placements',
-			'placements_lookup',
-			'placements_id',
 			'duties',
-			'duties_lookup',
-			'duties_id',
 			'groups_lookup'
 		)]
 		[string]
 		$Action,
 
-		# Filter based on type. Allows multiple choices.
-		[Parameter(
-			ParameterSetName = "Org"
-		)]
-		[ValidateSet(
-			"Huvudman",
-			"Verksamhetsområde",
-			"Förvaltning",
-			"Rektorsområde",
-			"Skola",
-			"Skolenhet",
-			"Varumärke",
-			"Bolag",
-			"Övrigt"
-		)]
-		[string[]]
-		$OrgType,
-
-		# Filter based on school type. Allows multiple choices.
-		[Parameter(
-			ParameterSetName = "Org"
-		)]
-		[ValidateSet(
-			"FS",
-			"FKLASS",
-			"FTH",
-			"OPPFTH",
-			"GR",
-			"GRS",
-			"TR",
-			"SP",
-			"SAM",
-			"GY",
-			"GYS",
-			"VUX",
-			"VUXSFI",
-			"VUXGR",
-			"VUXGY",
-			"VUXSARGR",
-			"VUXSARTR",
-			"VUXSARGY",
-			"SFI",
-			"SARVUX",
-			"SARVUXGR",
-			"SARVUXGY",
-			"KU",
-			"YH",
-			"FHS",
-			"STF",
-			"KKU",
-			"HS",
-			"ABU",
-			"AU"
-		)]
-		[string[]]
-		$SchoolType,
-
-		# Name to search for in IST
-		[Parameter(
-			ParameterSetName = "Filter"
-		)]
-		[string]
-		$Filter,
-
-		# Social security number to search for
-		[Parameter(
-			ParameterSetName = "CivicNo"
-		)]
-		[string]
-		$CivicNo,
-
-		# Id of person to get
-		[Parameter(
-			ParameterSetName = "Id"
-		)]
-		[string]
-		$Id,
-
-		# Retrieve all children of parent Id
-		[Parameter(
-			ParameterSetName = "Id"
-		)]
-		[switch]
-		$Parent,
-
-		# Array of either social security numbers or id's.
-		[Parameter(
-			ParameterSetName = "Lookup"
-		)]
-		[System.Object]
-		$PersonsLookup,
-
-		#
-		[Parameter()]
-		[ValidateSet(
-			'ids',
-			'civicNos'
-		)]
-		[string]
-		$Type,
-
-		# Type of relationship entity
-		[Parameter(
-			ParameterSetName = "Relationship"
-		)]
-		[ValidateSet(
-			"enrolment",
-			"duty",
-			"placement.child",
-			"placement.owner",
-			"responsibleFor.enrolment",
-			"responsibleFor.placement",
-			"groupMembership"
-		)]
-		[string]
-		$RelationshipEntity,
-		
-		# Id of organisation that the person has a relationship to.
-		[Parameter(
-			ParameterSetName = "Relationship"
-		)]
-		[guid]
-		$RelationshipOrganisation,
-
 		# Properties to include in the API call
-		[Parameter(
-			ParameterSetName = "Properties"
-		)]
-		[System.Object]
-		$Properties,
-
-		# Properties to expand when retrieving duties in the API call (Get-ISTDuty).
-		[Parameter(
-			ParameterSetName = "DutyRole"
-		)]
-		[System.Object]
-		$DutyProperties,
-
-		# Type
-		[Parameter(
-			ParameterSetName = "DutyRole"
-		)]
-		[ValidateSet(
-			"Rektor",
-			"Lärare",
-			"Förskollärare",
-			"Barnskötare",
-			"Bibliotekarie",
-			"Lärarassistent",
-			"Fritidspedagog",
-			"Annan personal",
-			"Studie- och yrkesvägledare",
-			"Förstelärare",
-			"Kurator",
-			"Skolsköterska",
-			"Skolläkare",
-			"Skolpsykolog",
-			"Speciallärare/specialpedagog",
-			"Skoladministratör",
-			"Övrig arbetsledning",
-			"Övrig pedagogisk personal",
-			"Förskolechef"
-		)]
-		[string]
-		$DutyRole,
-
-		# Organisation Id to retrieve duties from
 		[Parameter()]
-		[string]
-		$Organisation
+		[System.Object]
+		$Properties
 	)
 	
 	begin {
@@ -203,56 +28,71 @@
 	process {
 		$Url = switch ($Action) {
 			organisations {
+				$UrlBase = "$($ISTSettings.Server)/organisations?"
 
-				if ($OrgType -and $SchoolType) {
-					$First = $true
-					[string]$Url = ""
-
-					foreach ($OType in $OrgType) {
-						if ($First) {
-							$SpecialChar = ConvertFrom-SpecialCharacter -String $OrgType
-							$Url = "$($ISTSettings.Server)/organisations?type=$SpecialChar"
-							$First = $false
-						}
-						else {
-							$SpecialChar = ConvertFrom-SpecialCharacter -String $OrgType
-							$Url = $Url + "&type=$SpecialChar"
+				$PropArray = switch -Wildcard ($Properties.Keys) {
+					OrgType    {
+						foreach ($OrgType in $Properties.OrgType) {
+							if ($OrgType -match "[åäö]+") {
+								[string]$TmpString = $OrgType
+								"&type=$(ConvertFrom-SpecialCharacter -String $TmpString)"
+							}
+							else {
+								"&type=$OrgType"
+							}
 						}
 					}
-
-					foreach ($SType in $SchoolType) {
-						$Url = $Url + "&schoolTypes=$SType"
+					SchoolType {
+						foreach ($SchoolType in $Properties.SchoolType) {
+							"&schoolTypes=$SchoolType"
+						}
 					}
+					Id         {
+						"$($ISTSettings.Server)/organisations/$($Properties.Id)"
+					}
+					Parent     {
+						foreach ($Parent in $Properties.Parent) {
+							"&parent=$($Parent)"
+						}
+					}
+					"LookUp_*" {
+						if (-not $LookUpBuilder) {
+							$TmpTable = @{}
+							if ($Properties.LookUp_Ids) {
+								$TmpTable | Add-Member -MemberType NoteProperty -Name ids -Value $Properties.LookUp_Ids
+							}
+							if ($Properties.LookUp_SchoolUnitCodes) {
+								$TmpTable | Add-Member -MemberType NoteProperty -Name schoolUnitCodes -Value $Properties.LookUp_SchoolUnitCodes
+							}
+							if ($Properties.LookUp_OrganisationCodes) {
+								$TmpTable | Add-Member -MemberType NoteProperty -Name organisationCodes -Value $Properties.LookUp_OrganisationCodes
+							}
+							
+							$LookUpBuilder = [PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/organisations/lookup"
+								Data = $TmpTable | ConvertTo-Json
+							}
 
+							$LookUpBuilder
+						}
+					}
 				}
-				elseif ($OrgType) {
-					$First = $true
-					[string]$Url = ""
-					foreach ($OType in $OrgType) {
-						if ($First) {
-							$SpecialChar = ConvertFrom-SpecialCharacter -String $OrgType
-							$Url = "$($ISTSettings.Server)/organisations?type=$SpecialChar"
-							$First = $false
-						}
-						else {
-							$SpecialChar = ConvertFrom-SpecialCharacter -String $OrgType
-							$Url = $Url + "&type=$SpecialChar"
-						}
-					}
-				}
 
-				$Url
-			}
-			organisations_lookup {}
-			organisations_id {
-				if ($Parent) {
-					$UrlBase = "$($ISTSettings.Server)/organisations?parent=$Id"
-					$UrlBase
-					
+				if ($LookUpBuilder) {
+					# $Properties.LookUp_Id -or $Properties.LookUp_SchoolUnitCodes -or $Properties.LookUp_OrganisationCodes -or $Properties.Id
+					$LookUpBuilder
 				}
 				else {
-					$UrlBase = "$($ISTSettings.Server)/organisations/$Id"
-					$UrlBase
+					foreach ($Property in $PropArray) {
+						if (-not $StringBuilder) {
+							$StringBuilder = $Property
+						}
+						else {
+							$StringBuilder = $StringBuilder + $Property
+						}
+					}
+					
+					$UrlBase + $StringBuilder.TrimStart("&")
 				}
 			}
 			persons {
@@ -377,57 +217,7 @@
 					}
 				}
 			}
-			persons_lookup {
-				$UrlBase = "$($ISTSettings.Server)/persons/lookup"
-
-				if ($Properties) {
-					foreach ($Property in $Properties) {
-						if (-not $StringBuilder) {
-							$StringBuilder = "?expand=$Property"
-						}
-						else {
-							$StringBuilder = $StringBuilder + "&expand=$Property"
-						}
-					}
-					$UrlBase = $UrlBase + $StringBuilder
-				}
-
-				[PSCustomObject]@{
-					Url = $UrlBase
-					Data = [PSCustomObject]@{
-						$Type = $PersonsLookup
-					} | ConvertTo-Json
-				}
-			}
-			persons_id {
-				$UrlBase = "$($ISTSettings.Server)/persons/$Id"
-				
-				if ($Properties) {
-					foreach ($Property in $Properties) {
-						if (-not $StringBuilder) {
-							$StringBuilder = "?expand=$Property"
-						}
-						else {
-							$StringBuilder = $StringBuilder + "&expand=$Property"
-						}
-					}
-					$UrlBase = $UrlBase + $StringBuilder
-				}
-				$UrlBase
-			}
-			persons_relationship {
-				$UrlBase = "$($ISTSettings.Server)/persons?relationship.entity.type=$RelationshipEntity&relationship.organisation=$RelationshipOrganisation"
-
-				if ($Properties) {
-					foreach ($Property in $Properties) {
-						$UrlBase = $UrlBase + "&expand=$Property"
-					}
-				}
-				$UrlBase
-			}
 			placements {}
-			placements_lookup {}
-			placements_id {}
 			duties {
 				$UrlBase = "$($ISTSettings.Server)/duties?"
 
@@ -548,8 +338,6 @@
 					}
 				} #>
 			}
-			duties_lookup {}
-			duties_id {}
 			groups_lookup {
 				[PSCustomObject]@{
 					Url = "$($ISTSettings.Server)/groups/lookup"
