@@ -75,7 +75,10 @@ Another popup window will appear asking you to locate your credential file. This
       - `[string[]]`OrgType
       - `[string[]]`SchoolType
       - `[guid]`Id
-      - `[switch]`Parent
+      - `[guid[]]`Parent
+      - `[guid[]]`LookUp_Ids
+      - `[string[]]`LookUp_SchoolUnitCodes
+      - `[string[]]`LookUp_OrganisationCodes
 - Version 0.0.1.0 - 2024-04-02
   - [x] First commit.
   - [x] Available but not finished public cmdlets:
