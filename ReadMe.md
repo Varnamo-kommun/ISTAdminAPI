@@ -56,17 +56,17 @@ git clone https://github.com/VMO-IT-avdelningen/ISTAdminAPI.git
 You will be prompted to enter the password for the service account.
 Note that the credential file will only be readable by the account thats creates it, and on the very same machine. So if you are going to automate things with the module, be sure to generate the credential file with the appropriate service account.
 
-1. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
+4. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
 A popup window will appear asking you to select a folder to store your settings. The settings will be stored in .CSV format.
 Another popup window will appear asking you to locate your credential file. This will be the file that you previously created with the `New-Secret` Cmdlet.
 
-1. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
+5. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
 
-2. See each Cmdlet help section for further usage.
+6. See each Cmdlet help section for further usage.
 
 ## Changelog
 
-`ISTAdminAPI` is currently only maintained by me. I will try to add as many features as possible.
+`ISTAdminAPI` is currently only maintained by one person. I will try to add as many features as possible.
 - Version 0.0.1.1 - 2024-04-15
   - [x] Repository made public
   - [x] New cmdlets:
