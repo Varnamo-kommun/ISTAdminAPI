@@ -42,7 +42,7 @@ Please make sure you've followed each one.
 
 ### Installation
 
-1. Clone the repo
+1. Clone the repo or download it directly from here.
 ```sh
 git clone https://github.com/VMO-IT-avdelningen/ISTAdminAPI.git
 ```
@@ -56,65 +56,83 @@ git clone https://github.com/VMO-IT-avdelningen/ISTAdminAPI.git
 You will be prompted to enter the password for the service account.
 Note that the credential file will only be readable by the account thats creates it, and on the very same machine. So if you are going to automate things with the module, be sure to generate the credential file with the appropriate service account.
 
-4. Run `Initialize-SettingsFile` and provide it with your CustomerId eg. SE00100
+4. Run [`Initialize-SettingsFile`](/Docs/Initialize-SettingsFile.md) and provide it with your CustomerId eg. SE00100
 A popup window will appear asking you to select a folder to store your settings. The settings will be stored in .CSV format.
 Another popup window will appear asking you to locate your credential file. This will be the file that you previously created with the `New-Secret` Cmdlet.
 
-5. Import the module again, this time with the -Force parameter to ensure the module loads your settings.
+5. Import the module again, this time with the `-Force` parameter to ensure the module loads your settings.
 
-6. See each Cmdlet help section for further usage.
+6. See each Cmdlet [help section](/Docs/) for further usage.
 
 ## Changelog
 
 `ISTAdminAPI` is currently only maintained by one person. I will try to add as many features as possible.
+- Version 0.0.1.2 - 2024-04-19
+  - [x] Added documentation for all the public cmdlets. Find them under [/Docs](/Docs/)
+  - [x] Rewritten a few steps when constructing the request url.
+  - [x] Clean up of [Initialize-SettingsFile](/Docs/Initialize-SettingsFile.md)
+  - [x] New cmdlet:
+    - [x] [`Get-ISTGroup`](/Docs/Get-ISTGroup.md) - Retrieve your groups
+    - [x] Parameters:
+      - `[string[]]GroupType`
+      - `[string[]]SchoolType`
+      - `[guid[]]Parent`
+      - `[guid]Id`
+      - `[guid[]]LookUp`
+      - `[switch]ExpandAssignmentRole`
+      - `[string]StartDateOnOrBefore`
+      - `[string]StartDateOnOrAfter`
+      - `[string]EndDateOnOrBefore`
+      - `[string]EndDateOnOrAfter`
 - Version 0.0.1.1 - 2024-04-15
   - [x] Repository made public
-  - [x] New cmdlets:
-    - [x] `Get-ISTOrganisation` - Retrieve your organisations
+  - [x] New cmdlet:
+    - [x] [`Get-ISTOrganisation`](/Docs/Get-ISTOrganisation.md) - Retrieve your organisations
     - [x] Parameters:
-      - `[string[]]`OrgType
-      - `[string[]]`SchoolType
-      - `[guid]`Id
-      - `[guid[]]`Parent
-      - `[guid[]]`LookUp_Ids
-      - `[string[]]`LookUp_SchoolUnitCodes
-      - `[string[]]`LookUp_OrganisationCodes
+      - `[string[]]OrgType`
+      - `[string[]]SchoolType`
+      - `[guid]Id`
+      - `[guid[]]Parent`
+      - `[guid[]]LookUp_Ids`
+      - `[string[]]LookUp_SchoolUnitCodes`
+      - `[string[]]LookUp_OrganisationCodes`
 - Version 0.0.1.0 - 2024-04-02
   - [x] First commit.
-  - [x] Available but not finished public cmdlets:
-    - [x] `Get-ISTPerson` - Retrieve users/persons from the EduCloud API.
+  - [x] Available public cmdlets:
+    - [x] [`Get-ISTPerson`](/Docs/Get-ISTPerson.md) - Retrieve users/persons from the EduCloud API.
     - [x] Parameters: 
-      - `[string]`NameContains
-      - `[string]`CivicNo
-      - `[guid]`Id
-      - `[string]`RelationshipEntity
-      - `[guid]`RelationshipOrganisation
-      - `[guid[]]`LookUp
-      - `[string]`LookUpType
-      - `[string]`ExpandProperties
-      - `[string]`StartDateOnOrBefore
-      - `[string]`StartDateOnOrAfter
-      - `[string]`EndDateOnOrBefore
-      - `[string]`EndDateOnOrAfter
-    - [x] `Get-ISTDuty` - Retrieve one or multiple duties connected to an organisation.
+      - `[string]NameContains`
+      - `[string]CivicNo`
+      - `[guid]Id`
+      - `[string]RelationshipEntity`
+      - `[guid]RelationshipOrganisation`
+      - `[guid[]]LookUp`
+      - `[string]LookUpType`
+      - `[string]ExpandProperties`
+      - `[string]StartDateOnOrBefore`
+      - `[string]StartDateOnOrAfter`
+      - `[string]EndDateOnOrBefore`
+      - `[string]EndDateOnOrAfter`
+    - [x] [`Get-ISTDuty`](/Docs/Get-ISTDuty.md) - Retrieve one or multiple duties connected to an organisation.
     - [x] Parameters: 
-      - `[guid]`Organisation
-      - `[string]`DutyRole
-      - `[guid]`PersonId
-      - `[guid]`Id
-      - `[guid[]]`LookUp
-      - `[switch]`ExpandPerson
-      - `[string]`StartDateOnOrBefore
-      - `[string]`StartDateOnOrAfter
-      - `[string]`EndDateOnOrBefore
-      - `[string]`EndDateOnOrAfter
-  - [x] Currently under construction:
-    - [x] `Get-ISTSchoolUnit`
+      - `[guid]Organisation`
+      - `[string]DutyRole`
+      - `[guid]PersonId`
+      - `[guid]Id`
+      - `[guid[]]LookUp`
+      - `[switch]ExpandPerson`
+      - `[string]StartDateOnOrBefore`
+      - `[string]StartDateOnOrAfter`
+      - `[string]EndDateOnOrBefore`
+      - `[string]EndDateOnOrAfter`
 <!-- USAGE EXAMPLES -->
 ## Usage
+Take a look at the documentation under [/Docs](/Docs/). There are plenty of examples to help you get started.
 
-Get-Help `Function-Name` -Full
-
+You can also utilize the powershell help function like this: 
+```powershell
+Get-Help -Name Get-ISTOrganisation -Full
+```
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -122,7 +140,7 @@ Get-Help `Function-Name` -Full
  - [ ] Adding compability for handling programmes
  - [ ] Adding compability for handling studyplans
  - [ ] Adding compability for handling syllabuses
- - [ ] Adding compability for handling groups
+ - [x] Adding compability for handling groups (2024-04-19 - v.0.0.1.2)
 
 
 <!-- ACKNOWLEDGEMENTS -->
