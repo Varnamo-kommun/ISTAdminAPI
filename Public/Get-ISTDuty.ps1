@@ -37,12 +37,13 @@
 	Must be in RFC3339 format - Will only retrieve duty/duties that either has the same ending date or ends after
 
 	.EXAMPLE
-	Get-ISTDuty -Organisation <Organisation GUID> -DutyRole Rektor -StartDateOnOrBefore 2024-04-15 -EndDateOnOrAfter 2024-04-15
-	This example will retrieve all duties with the duty role 'Rektor' that connected to the specified organisation. It will also filter out duties that don't match the provided start/end dates.
+	$Today = Get-Date -Format "yyyy-MM-dd"
+	Get-ISTDuty -Organisation "f66c5203-4613-4655-91ce-487b1bfcd84e" -DutyRole Rektor -StartDateOnOrBefore $Today -EndDateOnOrAfter $Today
+	# This example will retrieve all duties with the duty role "Rektor" that connected to the specified organisation. It will also filter out duties that don't match the provided start/end dates.
 
 	.EXAMPLE
-	Get-ISTDuty -PersonId <Person GUID>
-	This example will retrieve all duties connected to the specified person
+	Get-ISTDuty -PersonId "17e8cc3f-32b6-49a9-abc1-4f2c468cb71d"
+	# This example will retrieve all duties connected to the specified person
 
 	.EXAMPLE
 	$DutyIds = @(
@@ -53,11 +54,11 @@
 	)
 
 	Get-ISTDuty -LookUp $DutyIds -ExpandPerson
-	This example will retrieve all four duties declared in $DutyIds and also get the connected person as an expandable object.
+	# This example will retrieve all four duties declared in $DutyIds and also get the connected person as an expandable object.
 
 	.EXAMPLE
-	Get-ISTDuty -DutyRole 'Studie- och yrkesvägledare'
-	This example will retrieve all duties with the role 'Studie- och yrkesvägledare' from your entire organisation.
+	Get-ISTDuty -DutyRole "Studie- och yrkesvägledare"
+	# This example will retrieve all duties with the role "Studie- och yrkesvägledare" from your entire organisation.
 
 	.NOTES
 	Author: Simon Mellergård | It-center, Värnamo kommun
@@ -116,7 +117,7 @@
 		[guid]
 		$Id,
 
-		#
+		# Send an array of ids to the API.
 		[Parameter(
 			ParameterSetName = "LookUp"
 		)]
@@ -203,12 +204,12 @@
 		$RequestUrl = Format-RequestUrl -Action duties -Properties $PSBoundParameters
 		
 		#region Debugging section
-		if ($RequestUrl.Url) {
+		<# if ($RequestUrl.Url) {
 			Write-Host $RequestUrl.Url -ForegroundColor Yellow
 		}
 		else {
 			Write-Host $RequestUrl -ForegroundColor Yellow
-		}
+		} #>
 		#endregion Debugging section
 
 		# Try/Catch section that either sends a request string or a json payload based on what parameters used to the EduCloud API
