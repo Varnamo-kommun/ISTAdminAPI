@@ -10,7 +10,7 @@
 			'persons',
 			'placements',
 			'duties',
-			'groups_lookup'
+			'groups'
 		)]
 		[string]
 		$Action,
@@ -48,7 +48,7 @@
 						}
 					}
 					Id         {
-						"$($ISTSettings.Server)/organisations/$($Properties.Id)"
+						$UrlBase = "$($ISTSettings.Server)/organisations/$($Properties.Id)"
 					}
 					Parent     {
 						foreach ($Parent in $Properties.Parent) {
@@ -79,11 +79,26 @@
 				}
 
 				if ($LookUpBuilder) {
-					# $Properties.LookUp_Id -or $Properties.LookUp_SchoolUnitCodes -or $Properties.LookUp_OrganisationCodes -or $Properties.Id
 					$LookUpBuilder
 				}
 				else {
-					foreach ($Property in $PropArray) {
+					if ($PropArray) {
+						foreach ($Property in $PropArray) {
+							if (-not $StringBuilder) {
+								$StringBuilder = $Property
+							}
+							else {
+								$StringBuilder = $StringBuilder + $Property
+							}
+						}
+					}
+					if ($StringBuilder) {
+						$UrlBase + $StringBuilder.TrimStart("&")
+					}
+					else {
+						$UrlBase
+					}
+					<# foreach ($Property in $PropArray) {
 						if (-not $StringBuilder) {
 							$StringBuilder = $Property
 						}
@@ -92,62 +107,24 @@
 						}
 					}
 					
-					$UrlBase + $StringBuilder.TrimStart("&")
+					$UrlBase + $StringBuilder.TrimStart("&") #>
 				}
 			}
 			persons {
 				$UrlBase = "$($ISTSettings.Server)/persons?"
 
-				<# switch ($PSCmdlet.ParameterSetName) {
-					Filter {
-						if ($Filter.Contains(' ')) {
-							$FilterSplit = $Filter.Split(' ')
-
-							$Max = $FilterSplit.Count
-							$Counter = 0
-
-							$UrlPart = foreach ($string in $FilterSplit) {
-								$Counter++
-
-								if ($Counter -lt $Max) {
-									"nameContains=$string&"
-								}
-								elseif ($Counter -eq $Max) {
-									"nameContains=$string"
-								}
-							}
-
-							$UrlPart = $UrlPart -join ''
-						}
-						else {
-							$UrlPart = foreach ($string in $Filter) {
-								"nameContains=$string"
-							}
-						}
-
-						if ($Properties) {
-							foreach ($Property in $Properties) {
-								$UrlPart = $UrlPart + "&expand=$Property"
-							}
-						}
-
-						$UrlBase+$(-join $UrlPart)
-					}
-					CivicNo {
-						$UrlPart = "civicNo=$CivicNo"
-
-						if ($Properties) {
-							foreach ($Property in $Properties) {
-								$UrlPart = $UrlPart + "&expand=$Property"
-							}
-						}
-
-						$UrlBase + $UrlPart
-					}
-				} #>
-
 				$PropArray = switch ($Properties.Keys) {
-					NameContains {"&nameContains=$($Properties.NameContains)"}
+					NameContains {
+						$NameArray = $Properties.NameContains -split " "
+						foreach ($SearchFilter in $NameArray) {
+							if ($SearchFilter -match "[\s-åäö]+") {
+								"&nameContains=$(ConvertFrom-SpecialCharacter -String $SearchFilter)"
+							}
+							else {
+								"&nameContains=$SearchFilter"
+							}
+						}
+					}
 					CivicNo {"&civicNo=$($Properties.CivicNo)"}
 					Id {
 						$UrlBase = "$($ISTSettings.Server)/persons/$($Properties.Id)"
@@ -200,20 +177,21 @@
 					$LookUp
 				}
 				else {
-					foreach ($Property in $PropArray) {
-						if (-not $StringBuilder) {
-							$StringBuilder = $Property
-						}
-						else {
-							$StringBuilder = $StringBuilder + $Property
+					if ($PropArray) {
+						foreach ($Property in $PropArray) {
+							if (-not $StringBuilder) {
+								$StringBuilder = $Property
+							}
+							else {
+								$StringBuilder = $StringBuilder + $Property
+							}
 						}
 					}
-	
-					if ($Properties.ExpandProperties) {
+					if ($StringBuilder) {
 						$UrlBase + $StringBuilder.TrimStart("&")
 					}
 					else {
-						$UrlBase + $StringBuilder
+						$UrlBase
 					}
 				}
 			}
@@ -269,7 +247,23 @@
 					$LookUp
 				}
 				else {
-					foreach ($Property in $PropArray) {
+					if ($PropArray) {
+						foreach ($Property in $PropArray) {
+							if (-not $StringBuilder) {
+								$StringBuilder = $Property
+							}
+							else {
+								$StringBuilder = $StringBuilder + $Property
+							}
+						}
+					}
+					if ($StringBuilder) {
+						$UrlBase + $StringBuilder.TrimStart("&")
+					}
+					else {
+						$UrlBase
+					}
+					<# foreach ($Property in $PropArray) {
 						if (-not $StringBuilder) {
 							$StringBuilder = $Property
 						}
@@ -283,7 +277,7 @@
 					}
 					else {
 						$UrlBase + $StringBuilder
-					}
+					} #>
 				}
 				<# switch ($PSCmdlet.ParameterSetName) {
 					DutyRole {
@@ -338,12 +332,103 @@
 					}
 				} #>
 			}
-			groups_lookup {
-				[PSCustomObject]@{
-					Url = "$($ISTSettings.Server)/groups/lookup"
-					Data = [PSCustomObject]@{
-						$Type = $PersonsLookup
-					} | ConvertTo-Json
+			groups {
+				$UrlBase = "$($ISTSettings.Server)/groups?"
+
+				$PropArray = switch ($Properties.Keys) {
+					GroupType {
+						foreach ($GroupType in $Properties.GroupType) {
+							if ($GroupType -match "[åäö]+") {
+								[string]$TmpString = $GroupType
+								"&groupType=$(ConvertFrom-SpecialCharacter -String $TmpString)"
+							}
+							else {
+								"&groupType=$GroupType"
+							}
+						}
+					}
+					SchoolType {
+						foreach ($SchoolType in $Properties.SchoolType) {
+							"&schoolTypes=$SchoolType"
+						}
+					}
+					Parent {
+						foreach ($Parent in $Properties.Parent) {
+							"&organisation=$($Parent)"
+						}
+					}
+					Id {
+						$UrlBase = "$($ISTSettings.Server)/groups/$($Properties.Id)"
+					}
+					LookUp {
+						$LookUp = if ($Properties.ExpandAssignmentRole) {
+							$LookUpBuilder = "/lookup?expand=assignmentRoles"
+
+							[PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/groups" + $LookUpBuilder
+								Data = [PSCustomObject]@{
+									ids = $Properties.LookUp
+								} | ConvertTo-Json
+							}
+						}
+						else {
+							[PSCustomObject]@{
+								Url = "$($ISTSettings.Server)/groups/lookup"
+								Data = [PSCustomObject]@{
+									ids = $Properties.Lookup
+								} | ConvertTo-Json
+							}
+						}
+					}
+					ExpandAssignmentRole {
+						if ($Properties.Id) {
+							"?expand=assignmentRoles"
+						}
+						else {
+							"&expand=assignmentRoles"
+						}
+					}
+					StartDateOnOrAfter {"&startDate.onOrAfter=$($Properties.StartDateOnOrAfter)"}
+					StartDateOnOrBefore {"&startDate.onOrBefore=$($Properties.StartDateOnOrBefore)"}
+					EndDateOnOrAfter {"&endDate.onOrAfter=$($Properties.EndDateOnOrAfter)"}
+					EndDateOnOrBefore {"&endDate.onOrBefore=$($Properties.EndDateOnOrBefore)"}
+				}
+
+				if ($LookUp) {
+					$LookUp
+				}
+				else {
+					if ($PropArray) {
+						foreach ($Property in $PropArray) {
+							if (-not $StringBuilder) {
+								$StringBuilder = $Property
+							}
+							else {
+								$StringBuilder = $StringBuilder + $Property
+							}
+						}
+					}
+					if ($StringBuilder) {
+						$UrlBase + $StringBuilder.TrimStart("&")
+					}
+					else {
+						$UrlBase
+					}
+					<# foreach ($Property in $PropArray) {
+						if (-not $StringBuilder) {
+							$StringBuilder = $Property
+						}
+						else {
+							$StringBuilder = $StringBuilder + $Property
+						}
+					}
+
+					if ($Properties.ExpandPerson) {
+						$UrlBase + $StringBuilder.TrimStart("&")
+					}
+					else {
+						$UrlBase + $StringBuilder
+					} #>
 				}
 			}
 		}
