@@ -1,57 +1,23 @@
 ﻿function Initialize-SettingsFile {
-
     <#
     .SYNOPSIS
     Build a settings file and store it on the computer.
 
     .DESCRIPTION
     This CMDlet will build a CSV file with information on how to connect to your organizations instance of ISTAdmin.
-    The ADProperty parameters are there for you to provide your organizations property names. e.g: In organization A, cellWorkphone number can be found in extensionAttribute6  and organization is found under physicalDeliveryOfficeName
-    You will also be prompted to select path to 2 different credential files. If you haven't generated these credential files, please refer to the module documentation.
+    You will also be prompted to select your credential file. If you haven't generated a credential file, please refer to the module documentation.
     Lastly you will be prompted to select a folder where the settings file will be stored.
 
     .PARAMETER Server
-    Your organizations API instance of ISTAdmin. e.g: https://api.ISTAdmin.com/v1
+    Your organizations API instance of ISTAdmin. e.g: https://api.ist.com/ss12000v2-api/source/<Your customer Id>/v2.0
+    This parameter is by default hidden and pre populated with the server adress to the EduCloud API
 
-    .PARAMETER SSO_UID
-    What property value in AD you want to refer to as the ISTAdmin UserName
-
-    .PARAMETER GivenName
-    What property value in AD you want to refer to as the ISTAdmin Name This parameter defaults to AD property GivenName. It will also work in conjunction with the Surname parameter to build the ISTAdmin name as follows: $GivenName $Surname
-
-    .PARAMETER Surname
-    What property value in AD you want to refer to as the ISTAdmin Name This parameter defaults to AD property Surname. It will also work in conjunction with the GivenName parameter to build the ISTAdmin name as follows: $GivenName $Surname
-
-    .PARAMETER Email
-    What property value in AD you want to refer to as the ISTAdmin Mail. Defaults to AD property Mail
-
-    .PARAMETER Workphone
-    What property value in AD you want to refer to as the ISTAdmin Workphone
+    .PARAMETER CustomerID
+    Your customer id eg. "SE00100"
 
     .EXAMPLE
-    # In this example we'll use UserPrincipalName as the SSO_UID/Username and exclude Workphone, CellWorkphone, Title and Organization.
-    # In this example we assume that GivenName, Surname and Email all points to the default values.
-    Initialize-SettingsFile -Server "https://api.ISTAdmin.com/v1" -SSO_UID UserPrincipalName
-
-    # This will give you three different prompts. First one you will have to select the folder where the CSV file are to be stored.
-    # Second prompt will ask for the encrypted credential file holding you credentials for Basic Authentication
-    # Third prompt you select encrypted credential file with the API key.
-
-    .EXAMPLE
-    # Here we splat all of the parameters to feed the ISTAdmin system with full user information.
-    $SettingParams = @{
-        Server         = "https://api.ISTAdmin.com/v1"
-        SSO_UID = "SSO_UID"
-        GivenName      = "GivenName"
-        Surname        = "Surname"
-        Email          = "Mail"
-        Workphone          = "ExtensionAttribute3"
-    }
-    Initialize-SettingsFile @SettingParams
-
-    # This will give you three different prompts. First one you will have to select the folder where the CSV file are to be stored.
-    # Second prompt will ask for the encrypted credential file holding you credentials for Basic Authentication
-    # Third prompt you select encrypted credential file with the API key.
+    Initialize-SettingsFile -CustomerID SE00100
+    # This will give you two different prompts. First one you will have to select the folder where the CSV file are to be stored. Second prompt will ask for the encrypted credential file holding you credentials.
 
     .NOTES
     Author: Simon Mellergård | IT-avdelningen, Värnamo kommun
@@ -68,7 +34,7 @@
         [string]
         $Server = "https://api.ist.com/ss12000v2-api/source/<REPLACE>/v2.0",
 
-        # ADProperty holding information about users's SSO_UID/Username
+        # Your customer Id eg. SE00100
         [Parameter(Mandatory = $true)]
         [string]
         $CustomerID
@@ -86,9 +52,6 @@
     }
 
     process {
-        # Creates a open file dialog for you to choose the credential file holding basic authentication information
-        # $SettingsTable | Add-Member -MemberType NoteProperty -Name "BASecretPath" -Value $(Get-FilePath -Type BASecret | Select-Object -ExpandProperty BASecret)
-
         # Creates a open file dialog for you to choose the credential file holding your API key.
         $SettingsTable | Add-Member -MemberType NoteProperty -Name "ClientAuthorizationPath" -Value $(Get-FilePath -Type Authorization | Select-Object -ExpandProperty Authorization)
 
