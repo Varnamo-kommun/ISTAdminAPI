@@ -49,7 +49,7 @@ else {
     $SettingsFileExists  = $true
 
     Export-ModuleMember -Function $Public.Basename
-    Export-ModuleMember -Function $Private.Basename
+    # Export-ModuleMember -Function $Private.Basename
     Export-ModuleMember -Function $Nested.Basename
 }
 
