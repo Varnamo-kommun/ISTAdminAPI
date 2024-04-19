@@ -16,7 +16,7 @@
     Your customer id eg. "SE00100"
 
     .EXAMPLE
-    Initialize-SettingsFile -CustomerID SE00100
+    Initialize-SettingsFile -CustomerID "SE00100"
     # This will give you two different prompts. First one you will have to select the folder where the CSV file are to be stored. Second prompt will ask for the encrypted credential file holding you credentials.
 
     .NOTES
